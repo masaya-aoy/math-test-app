@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>さんすうテスト</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            
+            margin: 0; /* ブラウザが自動でつける余白をなくします */
+            min-height: 100vh; /* bodyの高さを画面全体の高さにします */
+            display: flex; /* Flexboxというレイアウトモードを有効にします */
+            align-items: center; /* 上下の中央揃え */
+            justify-content: center; /* 左右の中央揃え */
+
+	    /* styleタグの中 */
+		.message {
+    		background-color: #f0f8ff;
+    		border-left: 5px solid #4682b4;
+    		padding: 15px;
+    		margin: 20px 0;
+    		font-size: 1.1em;
+    		font-weight: bold;
+    		color: #333;
+    		border-radius: 5px;
+    		text-align: left; /* メッセージは左揃えの方が見やすいです */
+		}
+        }
+        .container {
+            max-width: 500px;
+            /* margin: 20px auto; ← この行を削除 */
+            padding: 30px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center; /* bodyからこちらに移動 */
+        }
+	/* styleタグの中に追加 */
+	.checkbox-group label {
+	    background-color: #eee;
+	}
+	.checkbox-group input[type="checkbox"]:checked + label {
+	    background-color: #0077b6;
+	    color: white;
+	    border-color: #00509d;
+	}
+
+        h1, h2 { color: #00509d; }
+        h2 { margin-top: 30px; }
+
+        .setting-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .setting-group label {
+            padding: 10px 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .setting-group input[type="radio"] {
+            display: none;
+        }
+        .setting-group input[type="radio"]:checked + label {
+            background-color: #0077b6;
+            color: white;
+            border-color: #00509d;
+        }
+
+        #start-button {
+            font-size: 1.8em;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: #fca311;
+            color: #14213d;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 90%;
+            margin-top: 40px;
+        }
+        #start-button:hover { background-color: #e85d04; }
+
+        button { font-size: 1.2em; padding: 10px 20px; border-radius: 8px; border: none; background-color: #ffd60a; color: #003566; cursor: pointer; }
+        #mondai-text { font-size: 2.5em; font-weight: bold; margin: 30px 0; }
+        input[type="number"] { font-size: 2em; width: 120px; text-align: center; border-radius: 8px; border: 2px solid #ccc; padding: 5px;}
+        #wrong-answers-list { list-style: none; padding: 0; text-align: left; }
+        #wrong-answers-list li { border-bottom: 1px solid #eee; padding: 10px; font-size: 1.1em; }
+        #time-text { font-size: 1.5em; font-weight: bold; color: #d62828; }
+    </style>
+</head>
+<body>
+
+    <div id="start-area" class="container">
+    <h1>さんすうテスト</h1>
+    <form id="setting-form">
+
+        <h2>① けいさんの しゅるいを えらんでね！</h2>
+        <div id="type-group" class="setting-group checkbox-group">
+            <input type="checkbox" id="type-add" name="calc-type" value="add" checked>
+            <label for="type-add">たしざん</label>
+
+            <input type="checkbox" id="type-subtract" name="calc-type" value="subtract" checked>
+            <label for="type-subtract">ひきざん</label>
+
+            <input type="checkbox" id="type-multiply" name="calc-type" value="multiply">
+            <label for="type-multiply">かけざん</label>
+
+            <input type="checkbox" id="type-divide" name="calc-type" value="divide">
+            <label for="type-divide">わりざん</label>
+        </div>
+        <h2>② むずかしさを えらんでね！</h2>
+        <div id="difficulty-group" class="setting-group">
+            <input type="radio" id="easy" name="difficulty" value="easy">
+            <label for="easy">かんたん</label>
+
+            <input type="radio" id="normal" name="difficulty" value="normal" checked>
+            <label for="normal">ふつう</label>
+
+            <input type="radio" id="hard" name="difficulty" value="hard">
+            <label for="hard">むずかしい</label>
+        </div>
+
+        <h2>③ もんだいの かずを えらんでね！</h2>
+        <div id="questions-group" class="setting-group">
+            <input type="radio" id="q10" name="num_questions" value="10" checked>
+            <label for="q10">10もん</label>
+
+            <input type="radio" id="q20" name="num_questions" value="20">
+            <label for="q20">20もん</label>
+
+            <input type="radio" id="q30" name="num_questions" value="30">
+            <label for="q30">30もん</label>
+        </div>
+        
+        <button type="submit" id="start-button">スタート！</button>
+    </form>
+</div>
+
+    <div id="test-area" class="container" style="display: none;">
+        <p><span id="current-q-num">1</span> / <span id="total-q-num">10</span> 問目</p>
+        <div id="mondai-area">
+            <p id="mondai-text">1 + 1 = ?</p>
+        </div>
+        <div>
+            <form id="answer-form">
+                <input type="number" id="user-answer" required autocomplete="off">
+                <button type="submit">こたえ</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="result-area" class="container" style="display: none;">
+        <h2 id="result-title">けっか はっぴょう！</h2>
+        <p id="score-text"></p>
+        <p id="time-text"></p>
+	<p id="encouragement-message" class="message"></p>
+        <h3>まちがえた もんだい</h3>
+        <ul id="wrong-answers-list"></ul>
+        <button id="restart-button">せっていにもどる</button>
+    </div>
+
+    <script>
+        // --- HTML要素の準備 ---
+        const startArea = document.getElementById('start-area');
+        const testArea = document.getElementById('test-area');
+        const resultArea = document.getElementById('result-area');
+        const settingForm = document.getElementById('setting-form');
+        
+        const currentQNum = document.getElementById('current-q-num');
+        const totalQNum = document.getElementById('total-q-num');
+        const mondaiText = document.getElementById('mondai-text');
+        const answerForm = document.getElementById('answer-form');
+        const userAnswer = document.getElementById('user-answer');
+        
+        const scoreText = document.getElementById('score-text');
+        const timeText = document.getElementById('time-text');
+        const wrongAnswersList = document.getElementById('wrong-answers-list');
+        const restartButton = document.getElementById('restart-button');
+        const resultTitle = document.getElementById('result-title');
+
+        // --- テスト用の変数を準備 ---
+        let score, currentQuestionIndex, wrongAnswers;
+        let totalQuestions;
+        let correctAnswer;
+        let difficulty;
+        let startTime, endTime;
+	let selectedTypes = []; // ← この行を追加！
+
+        // --- 関数 ---
+        function makeQuestion() {
+    	    currentQNum.textContent = currentQuestionIndex + 1;
+    
+    	// 1. 今回どの計算方法で問題を作るか、ランダムで決める
+    	const questionType = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+
+    	// 2. 難易度に応じて、問題に使う数字の上限を決める
+    	let maxNumber;
+    	if (difficulty === 'easy') maxNumber = 9;      // 1桁
+    	else if (difficulty === 'normal') maxNumber = 99; // 2桁
+    	else maxNumber = 999;                           // 3桁
+
+    	let num1, num2;
+
+    	// 3. 計算の種類ごとに、問題の作り方を変える
+    	switch (questionType) {
+            case 'add': // たし算
+                num1 = Math.floor(Math.random() * (maxNumber + 1));
+            	num2 = Math.floor(Math.random() * (maxNumber + 1));
+            	mondaiText.textContent = `${num1} + ${num2} = ?`;
+            	correctAnswer = num1 + num2;
+            	break;
+
+            case 'subtract': // ひき算
+                num1 = Math.floor(Math.random() * (maxNumber + 1));
+            	num2 = Math.floor(Math.random() * (maxNumber + 1));
+            	if (num1 < num2) { // 答えがマイナスにならないように
+            	    [num1, num2] = [num2, num1]; // 数字を入れ替え
+            	}
+            	mondaiText.textContent = `${num1} - ${num2} = ?`;
+            	correctAnswer = num1 - num2;
+            	break;
+            
+            case 'multiply': // かけ算
+            	// かけ算は難易度ごとに上限を調整
+            	if (difficulty === 'easy') { num1 = Math.floor(Math.random() * 9) + 1; num2 = Math.floor(Math.random() * 9) + 1; } // 1桁 x 1桁
+            	else if (difficulty === 'normal') { num1 = Math.floor(Math.random() * 90) + 10; num2 = Math.floor(Math.random() * 9) + 1; } // 2桁 x 1桁
+            	else { num1 = Math.floor(Math.random() * 90) + 10; num2 = Math.floor(Math.random() * 90) + 10; } // 2桁 x 2桁
+            	mondaiText.textContent = `${num1} × ${num2} = ?`; // かける記号は「x」ではなく「×」を使う
+            	correctAnswer = num1 * num2;
+            	break;
+            
+            case 'divide': // わり算
+            	// ★わり算は、答えが必ず割り切れるように、逆算して作ります★
+            	let answer, divisor;
+            	if (difficulty === 'easy') { answer = Math.floor(Math.random() * 9) + 1; divisor = Math.floor(Math.random() * 9) + 1; }
+            	else if (difficulty === 'normal') { answer = Math.floor(Math.random() * 90) + 10; divisor = Math.floor(Math.random() * 9) + 1; }
+            	else { answer = Math.floor(Math.random() * 99) + 1; divisor = Math.floor(Math.random() * 99) + 1; }
+            
+            	let dividend = answer * divisor; // (こたえ) × (わる数) = (わられる数)
+            
+            	mondaiText.textContent = `${dividend} ÷ ${divisor} = ?`; // わる記号は「/」ではなく「÷」を使う
+            	correctAnswer = answer;
+            	break;
+    	}
+	}
+
+	function showResult() {
+    endTime = new Date();
+    const timeTaken = Math.round((endTime - startTime) / 1000);
+
+    // 全問正解かどうかに応じてタイトルを変更
+    if (score === totalQuestions) {
+        resultTitle.textContent = "すごい！ぜんぶせいかい！";
+    } else {
+        resultTitle.textContent = "けっか はっぴょう！";
+    }
+
+    // スコアと時間のテキストを設定
+    scoreText.textContent = `${totalQuestions}問中、${score}問せいかい！`;
+    timeText.textContent = `かかった時間: ${timeTaken}秒`;
+
+    // 間違えた問題リストを作成
+    wrongAnswersList.innerHTML = '';
+    wrongAnswers.forEach(item => {
+        const li = document.createElement('li');
+        // 問題文から「= ?」を削除して見やすくする
+        const questionText = item.question.replace(' = ?', '');
+        li.textContent = `もんだい: ${questionText} （あなたのこたえ: ${item.userAnswer}, ただしいこたえ: ${item.correctAnswer}）`;
+        wrongAnswersList.appendChild(li);
+    });
+    
+    // --- ▼▼▼ ここからが、AIと通信する機能です ▼▼▼ ---
+
+    const encouragementElement = document.getElementById('encouragement-message');
+    encouragementElement.textContent = 'せんせいからのメッセージをよみこんでいます...';
+
+    // fetch API を使って、私たちのサーバー(app.py)にリクエストを送信
+    fetch('http://127.0.0.1:5000/generate-encouragement', {
+        method: 'POST', // POSTメソッドで情報を送信
+        headers: {
+            'Content-Type': 'application/json', // データはJSON形式
+        },
+        // 送信するデータ本体。あなたのコードの変数名に合わせています
+        body: JSON.stringify({
+            mistake_count: wrongAnswers.length,
+            total_questions: totalQuestions,
+            difficulty: difficulty 
+        }),
+    })
+    .then(response => {
+        if (!response.ok) { // もしサーバーからエラーが返されたら
+            throw new Error('サーバーの応答が正しくありません');
+        }
+        return response.json(); // サーバーからの返事をJSON形式で解釈
+    })
+    .then(data => {
+        // 解釈が成功したら、中の 'message' を取り出して表示
+        encouragementElement.textContent = data.message;
+    })
+    .catch(error => {
+        // 通信中に何か問題が起きたら、この部分が実行される
+        console.error('メッセージの取得に失敗しました:', error);
+        // ユーザーには、代わりのメッセージを表示してあげる
+        encouragementElement.textContent = 'よくがんばったね！つぎもチャレンジしよう！';
+    });
+
+    // --- ▲▲▲ AI通信機能はここまで ▲▲▲ ---
+
+    // 画面の表示を切り替え
+    testArea.style.display = 'none';
+    resultArea.style.display = 'block';
+}
+
+        function startTest() {
+            score = 0;
+            currentQuestionIndex = 0;
+            wrongAnswers = [];
+            
+            totalQNum.textContent = totalQuestions;
+            
+            startArea.style.display = 'none';
+            resultArea.style.display = 'none';
+            testArea.style.display = 'block';
+
+            startTime = new Date();
+            makeQuestion();
+            userAnswer.focus();
+        }
+        
+        function showStartScreen() {
+            resultArea.style.display = 'none';
+            startArea.style.display = 'block';
+        }
+
+        // --- イベント処理 ---
+        settingForm.addEventListener('submit', (event) => {
+    	 event.preventDefault();
+
+    	 // どの計算方法がチェックされたかを取得する
+    	selectedTypes = [];
+    	const checkedBoxes = document.querySelectorAll('input[name="calc-type"]:checked');
+    	checkedBoxes.forEach(checkbox => {
+         selectedTypes.push(checkbox.value);
+    	});
+
+    	// もし何もチェックされていなかったら、アラートを出して処理を中断
+    	if (selectedTypes.length === 0) {
+         alert('けいさんの しゅるいを いっこは えらんでね！');
+        return;
+    	}
+
+    	// 難易度と問題数を取得
+    	difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+    	totalQuestions = parseInt(document.querySelector('input[name="num_questions"]:checked').value, 10);
+    
+    	startTest();
+	});
+        
+        answerForm.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+            const userAnswerValue = parseInt(userAnswer.value, 10);
+
+            if (userAnswerValue === correctAnswer) {
+                score++;
+            } else {
+                wrongAnswers.push({
+                    question: mondaiText.textContent,
+                    userAnswer: userAnswerValue,
+                    correctAnswer: correctAnswer
+                });
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < totalQuestions) {
+                makeQuestion();
+                userAnswer.value = '';
+                userAnswer.focus();
+            } else {
+                showResult();
+            }
+        });
+
+        restartButton.addEventListener('click', showStartScreen);
+    </script>
+</body>
+</html>
